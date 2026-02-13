@@ -1,0 +1,72 @@
+# Coaching Tracker — 1-Page Architecture Diagram + Narrative
+
+## Architecture Diagram
+
+```mermaid
+flowchart LR
+    U[Coach User\n(Browser)] --> UI[index.html + styles.css\nSingle-Page UI]
+    UI --> APP[app.js\nCoachingTracker Class]
+
+    APP --> AUTH[Auth Module\nDemo login session]
+    APP --> DATA[Data Module\nCoachees, Sessions, Sources CRUD]
+    APP --> ANALYTICS[Analytics Module\nKPIs, breakdowns, top lists]
+    APP --> RENDER[Rendering Module\nTables, charts, lookups, modals]
+
+    DATA <--> LS[(Browser LocalStorage\ncoachees / sessions / sources / currentUser)]
+    ANALYTICS --> CHART[Chart.js\nVisual dashboards]
+    RENDER --> UI
+
+    GH[GitHub Repository\nmain branch] --> ACT[GitHub Actions\nDeploy Workflow]
+    ACT --> GHP[gh-pages branch]
+    GHP --> WEB[Public Hosting\nGitHub Pages URL]
+    U <-->|HTTPS| WEB
+```
+
+---
+
+## Narrative (Stakeholder Review)
+
+### 1) What this system is
+Coaching Tracker is a **frontend-only web application** designed for coaches to manage client profiles (coachees), coaching sessions, referral sources, and practice analytics. It is intentionally lightweight: no backend server, no database server, and no runtime infrastructure beyond static web hosting.
+
+### 2) How it works at runtime
+When the user opens the app, the browser loads three core assets:
+- `index.html` (UI structure)
+- `styles.css` (layout and responsive styling)
+- `app.js` (application logic)
+
+The `CoachingTracker` class in `app.js` initializes the application, loads data from LocalStorage, optionally seeds demo data when empty, wires UI events, and controls screen state (login vs main app).
+
+### 3) Data and state management
+All business data is stored in **browser LocalStorage** under the keys:
+- `coachees`
+- `sessions`
+- `sources`
+- `currentUser`
+
+This means data is private to the browser/device and persists across refreshes. CRUD operations update in-memory arrays first, then persist through a shared save mechanism.
+
+### 4) Analytics and reporting
+The analytics module computes practice KPIs (hours, sessions, clients, averages) and segmented views (payment type, weekday, year, demographics, source performance). Results are rendered as charts via **Chart.js** and as tabular summaries in the dashboard.
+
+### 5) Deployment and web hosting
+The app is hosted as a static site using GitHub:
+- Source code in `main`
+- GitHub Actions workflow publishes to `gh-pages`
+- GitHub Pages serves public site over HTTPS
+
+This gives a low-cost, low-maintenance hosting model suitable for demos and lightweight production scenarios.
+
+### 6) Strengths and constraints
+**Strengths**
+- Fast delivery and simple operations
+- Zero backend hosting complexity
+- Easy to clone, run, and deploy
+
+**Constraints**
+- No multi-user/shared database
+- No server-side security controls
+- LocalStorage limitations (capacity, browser-specific data)
+
+### 7) Recommended next evolution
+For scale and enterprise readiness, next step is introducing a backend API + cloud database, replacing demo auth with secure identity, and adding backup/export controls.
